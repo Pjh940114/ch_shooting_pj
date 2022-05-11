@@ -133,6 +133,7 @@ class Game():
 
         # 게임 메뉴 On/Off
         self.menu_on = True
+        self.menu_rank = True
 
     # 게임 이벤트 처리 및 조작
     def process_events(self):
@@ -149,6 +150,7 @@ class Game():
                         self.count_missed = 0
                         # 게임 메뉴 On/Off
                         self.menu_on = False
+                        self.menu_rank = False
             # 게임 화면 이벤트 처리
             else:
                 if event.type == pygame.KEYDOWN:
@@ -227,7 +229,8 @@ class Game():
             # self.gameover_sound.play()
             self.rocks.empty()
             self.fighter.reset()
-            self.menu_on = True
+            # self.menu_on = True
+            self.menu_rank = True
             sleep(1)
 
     # 텍스트 그리기
@@ -274,9 +277,9 @@ class Game():
         # 배경 이미지
         screen.blit(self.background_image, self.background_image.get_rect())
         self.draw_text(screen, '파괴한 운석: {}'.format(self.shot_count),
-                       self.font_15, 100, 20, YELLOW)
+                       self.font_15, SCREEN_WIDTH - 400, 20, YELLOW)
         self.draw_text(screen, '놓친 운석: {}'.format(self.count_missed),
-                       self.font_15, 400, 20, RED)
+                       self.font_15, SCREEN_WIDTH - 75, 20, RED)
         self.draw_text(screen, '필살기 게이지: {}'.format(self.ultimate),
                        self.font_15, SCREEN_WIDTH / 2, 20, WHITE)
         
@@ -291,6 +294,21 @@ class Game():
         self.fighter.update()
         self.fighter.draw(screen)
 
+    # 랭크 화면 출력
+    def display_rank(self, screen):
+        screen.blit(self.background_image, self.background_image.get_rect())
+        # title
+        self.draw_text(screen, 'rank',
+                       self.font_50, SCREEN_WIDTH / 2, 100, YELLOW)
+        
+        # rank 1 ~ 5
+        # self.draw_text(screen, "1등 : {}".format(self.shot_count),
+        #                self.font_30, 100, 200, WHITE)
+        
+        for i in range(1,6):
+            self.draw_text(screen, "{}등 : {}".format(i, self.shot_count),
+                           self.font_30, 100, 150 + (i*50), WHITE)
+        
 
 # 게임 리소스 경로
 def resource_path(relative_path):
@@ -313,13 +331,16 @@ def main():
         done = game.process_events()
         if game.menu_on:  # 게임 메뉴 처리
             game.display_menu(screen)
+            # game.display_menu(screen)
         else:  # 게임 화면 처리
             game.run_logic(screen)
             game.display_frame(screen)
-
+            
+            if game.menu_rank:
+                game.display_rank(screen)
+            
         pygame.display.flip()
         clock.tick(FPS)
-
     pygame.quit()
 
 if __name__ == "__main__":
