@@ -18,33 +18,33 @@ RED = (250, 50, 50)
 FPS = 60
 
 def re_start():
-        pygame.init()
-        screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-        menu_image = pygame.image.load(resource_path('./ourpygame/gameover.jpg'))
-        font_20 = pygame.font.Font(resource_path('./ourpygame/youmurdererbb_reg.ttf'), 20)
-        run = True
-        while run:
-            screen.blit(menu_image, [0, 0])
-            draw_x = int(SCREEN_WIDTH / 2)
-            draw_y = int(SCREEN_HEIGHT / 4)
-            title_label = font_20.render('Press Y for Restart, N for Exit', True, WHITE)
-            text_rect = title_label.get_rect()
-            text_rect.center = draw_x, draw_y + 400
-            screen.blit(title_label,text_rect)
-            pygame.display.update()
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    run = False
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_y:
-                        display_rank(screen)
-                        sleep(3)
-                        main()
-                    if event.key == pygame.K_n:
-                        display_rank(screen)
-                        sleep(3)
-                        pygame.quit()
-        pygame.quit()
+    pygame.init()
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    menu_image = pygame.image.load(resource_path('./ourpygame/gameover.jpg'))
+    font_20 = pygame.font.Font(resource_path('./ourpygame/youmurdererbb_reg.ttf'), 20)
+    run = True
+    while run:
+        screen.blit(menu_image, [0, 0])
+        draw_x = int(SCREEN_WIDTH / 2)
+        draw_y = int(SCREEN_HEIGHT / 4)
+        title_label = font_20.render('Press Y for Restart, N for Exit', True, WHITE)
+        text_rect = title_label.get_rect()
+        text_rect.center = draw_x, draw_y + 400
+        screen.blit(title_label,text_rect)
+        pygame.display.update()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_y:
+                    display_rank(screen)
+                    sleep(3)
+                    main()
+                if event.key == pygame.K_n:
+                    display_rank(screen)
+                    sleep(3)
+                    pygame.quit()
+    pygame.quit()
         
         
 # 전투기 객체
@@ -133,8 +133,6 @@ class Rock(pygame.sprite.Sprite):
     def out_of_screen(self):
         if self.rect.y > SCREEN_HEIGHT:
             return True
-        
-
 
 # 게임 객체
 class Game():
@@ -260,6 +258,7 @@ class Game():
             self.rocks.empty()
             self.fighter.reset()
             self.menu_on = True
+            re_start()
             sleep(1)
             
 
@@ -385,9 +384,6 @@ def display_rank(screen):
     # for i in range(1,6):
     #         Game.draw_text(screen, "{}등 : {}".format(i, shot_count),
     #                        Game.font_30, 100, 150 + (i*50), WHITE)
-    
-    
-    
     
     title_label = font_20.render('rank display', True, WHITE)
     text_rect = title_label.get_rect()
