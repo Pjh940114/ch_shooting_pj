@@ -268,7 +268,7 @@ class Game(pygame.sprite.Sprite):
                         
                         self.bullets.add(bullet)
                     
-                    # 필살기 1)
+                    # 필살기 1 (라이플) : 일직선 미사일
                     elif self.ultimate >= 100 and event.key == pygame.K_a:
                         self.ultimate_gauge = True 
                        
@@ -276,24 +276,11 @@ class Game(pygame.sprite.Sprite):
                             for i in range(0, int(SCREEN_WIDTH/4), 10):
                                 bullet = Bullet(self.fighter.rect.centerx + i, self.fighter.rect.y, 30)
                                 self.bullets.add(bullet)
-                            for j in range(0, int(SCREEN_WIDTH/4), 10):
-                                bullet = Bullet(self.fighter.rect.centerx - j, self.fighter.rect.y, 30)
+                                bullet = Bullet(self.fighter.rect.centerx - i, self.fighter.rect.y, 30)
                                 self.bullets.add(bullet)
                             self.ultimate -= 100
-                    
-                    # 라이플 -> 샷건
-                    elif self.ultimate >= 300 and event.key == pygame.K_z:
-                        self.fighter.change_fighter()
-                        self.change_weapon = True
-                        
-                        
-                    # 샷건 -> 라이플
-                    elif event.key == pygame.K_x:
-                        self.fighter.image = pygame.image.load(resource_path('./ourpygame/rifle.png'))
-                        self.fighter.reset()
-                        self.change_weapon = False
 
-                    # 필살기 2 : 화살표 모양으로 샷건
+                    # 필살기 2 (샷건) : 넓은 미사일
                     elif event.key == pygame.K_s and self.ultimate >= 300 and self.change_weapon:
                             
                         for i in range(0, int(SCREEN_WIDTH/20), 10):
@@ -303,6 +290,17 @@ class Game(pygame.sprite.Sprite):
                                 bullet = Shotgun(self.fighter.rect.centerx - i - j, self.fighter.rect.y + i - j, 50)
                                 self.bullets.add(bullet)
                         self.ultimate -= 20
+                        
+                    # 라이플 -> 샷건
+                    elif self.ultimate >= 300 and event.key == pygame.K_z:
+                        self.fighter.change_fighter()
+                        self.change_weapon = True           
+                        
+                    # 샷건 -> 라이플
+                    elif event.key == pygame.K_x:
+                        self.fighter.image = pygame.image.load(resource_path('./ourpygame/rifle.png'))
+                        self.fighter.reset()
+                        self.change_weapon = False
 
                 elif event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
@@ -337,8 +335,6 @@ class Game(pygame.sprite.Sprite):
 
         # 랜덤 확률의 빈도로 수행
         if random.randint(1, self.occur_prob) == 1:
-            
-            # 몬스터 생성 및 생성된 몬스터만큼 점수 ptob
             
             for i in range(occur_of_monsters):
                 speed = random.randint(min_monster_speed, max_monster_speed)
@@ -416,7 +412,7 @@ class Game(pygame.sprite.Sprite):
         explosion_sound = pygame.mixer.Sound(random.choice(self.explosion_sound_file_list))
         explosion_sound.play()
 
-    # 아이템 먹기
+    # 아이템 충돌 이벤트
     def occur_item_explosion(self, screen, x, y):
         item_explosion_image = pygame.image.load(resource_path('./ourpygame/flash.png'))
         item_explosion_rect = self.item_explosion_image.get_rect()
@@ -567,9 +563,7 @@ def display_rank(screen):
     screen.blit(fifth_label, fifth_rect)
         
     pygame.display.update()        
-    
-            
-            
+        
 def re_start():
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -603,7 +597,6 @@ gameDisplay = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
 #시간
 clock = pygame.time.Clock()
-
 
 
 # 게임 리소스 경로
