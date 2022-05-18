@@ -20,21 +20,38 @@ RED = (250, 50, 50)
 # 전역 변수
 FPS = 60
 
+# 버튼 이미지 추가
+startImg = pygame.image.load("./ourpygame/starticon.png")
+quitImg = pygame.image.load("./ourpygame/quiticon.png")
+clickStartImg = pygame.image.load("./ourpygame/clickedStartIcon.png")
+clickQuitImg = pygame.image.load("./ourpygame/clickedQuitIcon.png")
+font = pygame_menu.font.FONT_HELVETICA
+
+#화면 설정
+gameDisplay = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+
+# 게임 로고
+logo = pygame.image.load("./ourpygame/logo.png")
+pygame.display.set_icon(logo)
+
+#시간
+clock = pygame.time.Clock()
+
 
 # Button 클래스
 class Button:
     def __init__(self, img_in, x, y, width, height, img_act, x_act, y_act, action = None):
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed()
-        if x + width > mouse[0] > x and y + height > mouse[1] > y:
-            gameDisplay.blit(img_act,(x_act, y_act))
-            if click[0] and action != None:
-                sleep(1)
-                action()
+        if x + width > mouse[0] > x and y + height > mouse[1] > y:   # 마우스 위치가 버튼 넓이, 높이 안에 있으면
+            gameDisplay.blit(img_act,(x_act, y_act))   # 버튼 이미지가 움직이고(움직이게 보이고)
+            if click[0] and action != None:   # 버튼을 클릭하면
+                sleep(1)   #1초 멈췄다가
+                action()   # 실행
         else:
-            gameDisplay.blit(img_in,(x,y))
+            gameDisplay.blit(img_in,(x,y))   # 버튼 그리기
             
-# Button2 클래스
+# Button2 클래스 : 위와 동일
 class Button2:
     def __init__(self, img_in, x, y, width, height, img_act, x_act, y_act, action=None):
         mouse = pygame.mouse.get_pos()
@@ -45,18 +62,20 @@ class Button2:
             gameDisplay.blit(img_in, (x, y))       
         
 # 캐릭터 객체
+# 이미지, 위치, 충돌 처리를 통합해서 처리하기 위해 스프라이트 클래스를 상속받았음.
 class Fighter(pygame.sprite.Sprite):
     def __init__(self):
         super(Fighter, self).__init__()
         self.image = pygame.image.load(resource_path('./ourpygame/rifle.png')).convert_alpha()
+         # 보다 정확한 충돌 판정을 위해 spritecollide 를 써서 collide_mask를 써야 하는데, 그 사전작업으로 필요한 게 convert_alpha
         self.rect = self.image.get_rect()
         self.mask = pygame.mask.from_surface(self.image)
         self.reset()
 
     # 캐릭터 리셋
     def reset(self):
-        self.rect.x = int(SCREEN_WIDTH / 2)
-        self.rect.y = SCREEN_HEIGHT - self.rect.height
+        self.rect.x = int(SCREEN_WIDTH / 2) # 화면 x축(가로) 정중앙
+        self.rect.y = SCREEN_HEIGHT - self.rect.height  # 캐락터 키만큼 위로
         self.dx = 0
         self.dy = 0
 
@@ -81,7 +100,7 @@ class Fighter(pygame.sprite.Sprite):
             if pygame.sprite.collide_rect(self, sprite):
                 return sprite
             
-    def change_fighter(self):
+    def change_fighter(self): # 플레이어 이미지 변경
         self.image = pygame.image.load(resource_path('./ourpygame/shotgun.png')).convert_alpha()
         self.rect = self.image.get_rect()
         self.mask = pygame.mask.from_surface(self.image)
@@ -104,7 +123,7 @@ class Bullet(pygame.sprite.Sprite):
 
     # 탄환 업데이트
     def update(self):
-        self.rect.y -= self.speed
+        self.rect.y -= self.speed   # 탄환이 아래에서 위로 올라가는 속도만큼 y 위치 업데이트
         if self.rect.y + self.rect.height < 0 :
             self.kill()
 
@@ -114,7 +133,7 @@ class Bullet(pygame.sprite.Sprite):
             if pygame.sprite.collide_rect(self, sprite):
                 return sprite
             
-    def change_weapon(self, xpos, ypos, speed):
+    def change_weapon(self, xpos, ypos, speed):     # 탄환 변경, 탄환 소리 변경
         self.image = pygame.image.load(resource_path('./ourpygame/bullet2.png'))
         self.sound = pygame.mixer.Sound(resource_path('./ourpygame/shotgun2.wav'))
         self.rect = self.image.get_rect()
@@ -123,7 +142,7 @@ class Bullet(pygame.sprite.Sprite):
         self.speed = speed
         
         
-class Shotgun(Bullet):
+class Shotgun(Bullet):    # Bullet 클래스를 상속받아옴
     def __init__(self, xpos, ypos, speed):
         super(Bullet, self).__init__()
         self.image = pygame.image.load(resource_path('./ourpygame/bullet2.png'))
@@ -138,12 +157,12 @@ class Shotgun(Bullet):
 class Monster(pygame.sprite.Sprite):
     def __init__(self, xpos, ypos, speed):
         super(Monster, self).__init__()
-        monster_images_path = resource_path('./ourpygame/monster')
+        monster_images_path = resource_path('./ourpygame/monster')    # 몬스터 이미지들이 있는 경로를 받아와서
         image_file_list = os.listdir(monster_images_path)
-        self.image_path_list = [os.path.join(monster_images_path, file)
+        self.image_path_list = [os.path.join(monster_images_path, file)     # 리스트로 만들고
                                 for file in image_file_list if file.endswith(".png")]
         choice_monster_path = random.choice(self.image_path_list)
-        self.image = pygame.image.load(choice_monster_path).convert_alpha()
+        self.image = pygame.image.load(choice_monster_path).convert_alpha()   # 파이게임으로 불러옴
         self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect()
         self.rect.x = xpos
@@ -152,7 +171,7 @@ class Monster(pygame.sprite.Sprite):
 
     # 몬스터 업데이트
     def update(self):
-        self.rect.y += self.speed
+        self.rect.y += self.speed     # 몬스터가 위에서 아래로 내려오는 속도만큼 y 위치 업데이트
 
     # 몬스터 게임 화면
     def out_of_screen(self):
@@ -181,23 +200,33 @@ class ITEM(pygame.sprite.Sprite):
 # 게임 객체
 class Game(pygame.sprite.Sprite):
     def __init__(self):
+        
+        # 게임 메뉴, 배경, 폭발, 아이템 습득 이미지 불러오기
         self.menu_image = pygame.image.load(resource_path('./ourpygame/gamemenu.png'))
         self.background_image = pygame.image.load(resource_path('./ourpygame/background1.png'))
         self.explosion_image = pygame.image.load(resource_path('./ourpygame/blood.png'))
         self.item_explosion_image = pygame.image.load(resource_path('./ourpygame/flash.png'))
+        
+        # 폰트 불러오기
         self.default_font = pygame.font.Font(resource_path('./ourpygame/youmurdererbb_reg.ttf'), 28)
         self.font_100 = pygame.font.Font(resource_path('./ourpygame/Ghastly Panic.ttf'), 100)
         self.font_50 = pygame.font.Font(resource_path('./ourpygame/Ghastly Panic.ttf'), 50)
         self.font_30 = pygame.font.Font(resource_path('./ourpygame/youmurdererbb_reg.ttf'), 30)
         
+        # 폭발 소리 불러오기. 경로를 받아와서 리스트화
         explosion_sound_path = resource_path('./ourpygame/sound')
         explosion_sound_file_list = os.listdir(explosion_sound_path)
         self.explosion_sound_file_list = [os.path.join(explosion_sound_path, file) for file in explosion_sound_file_list]
         
+        # 아이템 습득 시 소리
         self.item_explosion_sound = pygame.mixer.Sound(resource_path('./ourpygame/item_sound.wav'))
+        
+        # 게임 오버 음향
         self.gameover_sound = pygame.mixer.Sound(resource_path('./ourpygame/Game_over.wav'))
+        
+        # 배경음악
         self.bgm = pygame.mixer.Sound(resource_path('./ourpygame/HorrorBGM2.mp3'))
-        self.bgm.play(-1)
+        self.bgm.play(-1) # 무한 재생
 
         self.fighter = Fighter()
         self.bullets = pygame.sprite.Group()
@@ -208,6 +237,8 @@ class Game(pygame.sprite.Sprite):
         
         # 아이템 출현 빈도
         self.occur_item_prob = 700
+        
+        # kill수, 필살기 게이지, 라이프 차감은 0으로 시작
         self.shot_count = 0
         self.ultimate = 0
         self.ultimate_gauge = False
@@ -268,7 +299,7 @@ class Game(pygame.sprite.Sprite):
                         
                         self.bullets.add(bullet)
                     
-                    # 필살기 1 (라이플) : 일직선 미사일
+                    # 필살기 1 (라이플) : 일직선 라이플 공격
                     elif self.ultimate >= 100 and event.key == pygame.K_a:
                         self.ultimate_gauge = True 
                        
@@ -280,7 +311,7 @@ class Game(pygame.sprite.Sprite):
                                 self.bullets.add(bullet)
                             self.ultimate -= 100
 
-                    # 필살기 2 (샷건) : 넓은 미사일
+                    # 필살기 2 (샷건) : 화살 촉 모양 산탄총 공격
                     elif event.key == pygame.K_s and self.ultimate >= 300 and self.change_weapon:
                             
                         for i in range(0, int(SCREEN_WIDTH/20), 10):
@@ -345,6 +376,7 @@ class Game(pygame.sprite.Sprite):
          
             # 아이템 생성
             for i in range(occur_of_items):  
+                # 아이템 생성 속도는 몬스터의 속도와 같음
                 speed = random.randint(min_monster_speed, max_monster_speed)
                 item = ITEM(random.randint(0, SCREEN_WIDTH - 30), 0, speed)
                 self.items.add(item)   
@@ -389,7 +421,7 @@ class Game(pygame.sprite.Sprite):
             self.menu_on = True
             
             f=open("./ourpygame/score.txt", 'a')
-            resultscore = str(self.shot_count*5) + '\n'
+            resultscore = str(self.shot_count) + '\n'
             f.write(resultscore)
             f.close()
             
@@ -479,7 +511,7 @@ class Game(pygame.sprite.Sprite):
         elif self.count_missed == 4:
             self.draw_img(screen, pygame.image.load('./ourpygame/heart.png'), 70, 75)
         elif self.count_missed == 5 or self.fighter.collide(self.monsters):
-            self.draw_img(screen, None, 70, 75)
+            self.draw_img(screen, None, None, None)
         
         # 필살기 게이지
         self.draw_text(screen, 'ultimate gauge: {}'.format(self.ultimate),
@@ -530,11 +562,11 @@ def display_rank(screen):
     
     scores = pd.read_table('./ourpygame/score.txt', header=None).sort_values(by=0, ascending=False)
     
-    first = int(scores.values[0]/5)
-    second = int(scores.values[1]/5)
-    third = int(scores.values[2]/5)
-    fourth = int(scores.values[3]/5)
-    fifth = int(scores.values[4]/5)
+    first = int(scores.values[0])
+    second = int(scores.values[1])
+    third = int(scores.values[2])
+    fourth = int(scores.values[3])
+    fifth = int(scores.values[4])
     
     
     first_label = font_60.render(f'1st. {first} KILL', True, YELLOW)
@@ -584,19 +616,6 @@ def re_start():
         pygame.display.update()
         clock.tick(15)
         
-        
-#이미지 추가
-startImg = pygame.image.load("./ourpygame/starticon.png")
-quitImg = pygame.image.load("./ourpygame/quiticon.png")
-clickStartImg = pygame.image.load("./ourpygame/clickedStartIcon.png")
-clickQuitImg = pygame.image.load("./ourpygame/clickedQuitIcon.png")
-font = pygame_menu.font.FONT_HELVETICA
-
-#화면 설정
-gameDisplay = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-
-#시간
-clock = pygame.time.Clock()
 
 
 # 게임 리소스 경로
